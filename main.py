@@ -5,5 +5,5 @@ import sys
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = FloorCreatorWindow()
+    window = FloorCreatorWindow(app)
     sys.exit(app.exec())

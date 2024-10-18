@@ -1,19 +1,34 @@
-from PySide6.QtGui import QScreen
+from PySide6.QtCore import QRectF, Qt
+from PySide6.QtGui import QScreen, QPen, QPainter
 from PySide6.QtWidgets import QPushButton, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QToolBar, QStatusBar, \
-    QApplication
+    QApplication, QGraphicsScene, QGraphicsRectItem, QGraphicsView
+
+from widgets.editor import Editor
 
 
 class FloorCreatorWindow (QMainWindow):
-    def __init__(self):
+    def __init__(self, app):
         super().__init__()
+        self.app = app
         self.setWindowTitle('Floor Plan Creator')
         self.setMinimumSize(950, 650)
 
-        # Top toolbar
-        toolbar = QToolBar("Main Toolbar")
-        toolbar.setMovable(False)
-        toolbar.setFixedHeight(25)
-        self.addToolBar(toolbar)
+        # Menubar
+        menu_bar = self.menuBar()
+
+        # File menu
+        file_menu = menu_bar.addMenu('File')
+        save_action = file_menu.addAction('Save')
+        #TODO save_action.triggered.connect(self.save)
+        quit_action = file_menu.addAction('Quit')
+        quit_action.triggered.connect(self.quit)
+
+        # View menu
+        view_menu = menu_bar.addMenu('View')
+        zoom_in_action = view_menu.addAction('+ Zoom In')
+        #TODO zoom_in_action.triggered.connect(self.zoom_in)
+        zoom_out_action = view_menu.addAction('- Zoom Out')
+        #TODO zoom_out_action.triggered.connect(self.zoom_out)
 
         # Central layout
         central_widget = QWidget()
@@ -37,8 +52,7 @@ class FloorCreatorWindow (QMainWindow):
         left_column.addWidget(button_window)
 
         # Center
-        center_editor = QWidget()
-        center_editor.setStyleSheet("background-color: white;")
+        self.editor = Editor()
 
         # Right column
         right_column = QVBoxLayout()
@@ -56,7 +70,7 @@ class FloorCreatorWindow (QMainWindow):
         right_column.addWidget(button_furniture)
 
         central_layout.addLayout(left_column)
-        central_layout.addWidget(center_editor)
+        central_layout.addWidget(self.editor)
         central_layout.addLayout(right_column)
 
         # Bottom statusbar
@@ -69,6 +83,9 @@ class FloorCreatorWindow (QMainWindow):
         screen = QScreen.availableGeometry(QApplication.primaryScreen())
         size = self.geometry()
         self.move((screen.width() - size.width()) // 2, (screen.height() - size.height()) // 2)
+
+    def quit(self):
+        self.app.quit()
 
     def button_wall_clicked(self):
         print('Wall button clicked')
