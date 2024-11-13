@@ -1,9 +1,11 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QScreen, QAction, QFont
-from PySide6.QtWidgets import QPushButton, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QToolBar, QStatusBar, \
-    QApplication, QLabel, QComboBox
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QToolBar, QStatusBar, \
+    QApplication, QLabel
 
-from widgets.editor import Editor
+from widgets.editor_widget import EditorWidget
+from widgets.left_column_widget import LeftColumnWidget
+from widgets.right_column_widget import RightColumnWidget
 
 
 class FloorCreatorWindow(QMainWindow):
@@ -46,103 +48,23 @@ class FloorCreatorWindow(QMainWindow):
         central_widget.setLayout(central_layout)
 
         # Left column
-        left_column = QVBoxLayout()
-        left_column.setSpacing(2)
-        left_column.setContentsMargins(5, 5, 5, 5)
-        left_column.setAlignment(Qt.AlignTop)
-
-        objects_label = QLabel(' Objects')
-        font = QFont()
-        font.setPointSize(14)
-        objects_label.setFont(font)
-        objects_label.setContentsMargins(0, 0, 0, 10)
-        left_column.addWidget(objects_label)
-
-        self.left_dropdown = QComboBox()
-        self.left_dropdown.addItems(['Structure', 'General', 'Bedroom', 'Bathroom', 'Living', 'Kitchen'])
-        self.left_dropdown.currentIndexChanged.connect(self.toggle_left_buttons)
-        left_column.addWidget(self.left_dropdown)
-        self.left_buttons_structure = [
-            QPushButton('Wall'),
-            QPushButton('Door'),
-            QPushButton('Window'),
-            QPushButton('Stairs')
-        ]
-        self.left_buttons_general = [
-            QPushButton('Table'),
-            QPushButton('Corner table'),
-            QPushButton('Chair'),
-            QPushButton('Shelf'),
-            QPushButton('Plant')
-        ]
-        self.left_buttons_bedroom = [
-            QPushButton('Bed'),
-            QPushButton('Closet'),
-        ]
-        self.left_buttons_bathroom = [
-            QPushButton('Toilet'),
-            QPushButton('Sink'),
-            QPushButton('Bathtub'),
-        ]
-        self.left_buttons_living = [
-            QPushButton('Sofa'),
-            QPushButton('Corner sofa'),
-            QPushButton('Armchair'),
-            QPushButton('TV'),
-        ]
-        self.left_buttons_kitchen = [
-            QPushButton('Kitchen sink'),
-            QPushButton('Stove'),
-            QPushButton('Cabinet'),
-            QPushButton('Corner cabinet')
-        ]
-        for button in (self.left_buttons_structure +
-                       self.left_buttons_general +
-                       self.left_buttons_bedroom +
-                       self.left_buttons_bathroom +
-                       self.left_buttons_living +
-                       self.left_buttons_kitchen):
-            button.setFixedSize(75, 75)
-            left_column.addWidget(button)
-        # TODO paseaza o lambda ca sa poti pasa numele butonului ca param si fa o singura functie de press btn cu un switch
-        self.left_buttons_structure[0].clicked.connect(self.button_wall_clicked)
-        self.left_buttons_structure[1].clicked.connect(self.button_door_clicked)
-        self.left_buttons_structure[2].clicked.connect(self.button_window_clicked)
+        self.left_column = LeftColumnWidget()
+        self.left_column.left_dropdown.currentIndexChanged.connect(self.toggle_left_buttons)
+        self.left_column.left_buttons_structure[0].clicked.connect(self.button_wall_clicked)
+        self.left_column.left_buttons_structure[1].clicked.connect(self.button_door_clicked)
+        self.left_column.left_buttons_structure[2].clicked.connect(self.button_window_clicked)
+        central_layout.addWidget(self.left_column)
 
         # Center
-        self.editor = Editor()
+        self.editor = EditorWidget()
+        central_layout.addWidget(self.editor)
 
         # Right column
-        right_column = QVBoxLayout()
-        right_column.setSpacing(2)
-        right_column.setContentsMargins(5, 5, 5, 5)
-        right_column.setAlignment(Qt.AlignTop)
-
-        tools_label = QLabel('   Tools')
-        font = QFont()
-        font.setPointSize(14)
-        tools_label.setFont(font)
-        tools_label.setContentsMargins(0, 0, 0, 10)
-        right_column.addWidget(tools_label)
-
-        self.right_buttons = [
-            QPushButton('Undo'),
-            QPushButton('Redo'),
-            QPushButton('Eraser'),
-            QPushButton('New floor'),
-            QPushButton('Go up'),
-            QPushButton('Go down'),
-        ]
-        for button in self.right_buttons:
-            button.setFixedSize(75, 75)
-            right_column.addWidget(button)
-        self.right_buttons[0].clicked.connect(self.button_floor_clicked)
-        self.right_buttons[1].clicked.connect(self.button_roof_clicked)
-        self.right_buttons[2].clicked.connect(self.button_furniture_clicked)
-
-        central_layout.addLayout(left_column)
-        central_layout.addWidget(self.editor)
-        central_layout.addLayout(right_column)
+        self.right_column = RightColumnWidget()
+        self.right_column.right_buttons[0].clicked.connect(self.button_floor_clicked)
+        self.right_column.right_buttons[1].clicked.connect(self.button_roof_clicked)
+        self.right_column.right_buttons[2].clicked.connect(self.button_furniture_clicked)
+        central_layout.addWidget(self.right_column)
 
         # Bottom statusbar
         status_bar = QStatusBar(self)
@@ -161,12 +83,12 @@ class FloorCreatorWindow(QMainWindow):
 
     def toggle_left_buttons(self, index):
         button_sets = {
-            0: self.left_buttons_structure,
-            1: self.left_buttons_general,
-            2: self.left_buttons_bedroom,
-            3: self.left_buttons_bathroom,
-            4: self.left_buttons_living,
-            5: self.left_buttons_kitchen,
+            0: self.left_column.left_buttons_structure,
+            1: self.left_column.left_buttons_general,
+            2: self.left_column.left_buttons_bedroom,
+            3: self.left_column.left_buttons_bathroom,
+            4: self.left_column.left_buttons_living,
+            5: self.left_column.left_buttons_kitchen,
         }
         for key, button_set in button_sets.items():
             if key == index:
