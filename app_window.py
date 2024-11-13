@@ -61,8 +61,8 @@ class FloorCreatorWindow(QMainWindow):
 
         # Right column
         self.right_column = RightColumnWidget()
-        self.right_column.right_buttons[0].clicked.connect(self.button_floor_clicked)
-        self.right_column.right_buttons[1].clicked.connect(self.button_roof_clicked)
+        self.right_column.right_buttons[0].clicked.connect(self.editor.object_stack.undo)
+        self.right_column.right_buttons[1].clicked.connect(self.editor.object_stack.redo)
         self.right_column.right_buttons[2].clicked.connect(self.button_furniture_clicked)
         central_layout.addWidget(self.right_column)
 

@@ -1,6 +1,7 @@
-from PySide6.QtGui import QColor, QBrush, QPainter
+from PySide6.QtGui import QColor, QBrush, QPainter, QUndoStack
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsRectItem
 
+from objects.placeable_object_command import PlaceableObjectCommand
 from objects.placeable_object import PlaceableObject
 
 
@@ -15,6 +16,7 @@ class EditorWidget(QGraphicsView):
         self.setRenderHint(QPainter.RenderHint.Antialiasing)    # Grid lines look bad without this when zoomed out
         self.draw_grid()
         self.current_object_size = (2, 3)  # TODO schimba asta cu marimea coresp. obiectului selectat
+        self.object_stack = QUndoStack(self)
 
     def draw_grid(self):
         for x in range(self.grid_width):
@@ -29,7 +31,8 @@ class EditorWidget(QGraphicsView):
         width = self.current_object_size[0] * self.grid_size
         height = self.current_object_size[1] * self.grid_size
         placeable_object = PlaceableObject(x, y, width, height)
-        self.scene.addItem(placeable_object)
+        object_command = PlaceableObjectCommand(self.scene, placeable_object)
+        self.object_stack.push(object_command)
 
 class GridItem(QGraphicsRectItem):
     def __init__(self, x, y, size):
