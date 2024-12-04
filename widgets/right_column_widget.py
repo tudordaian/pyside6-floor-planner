@@ -3,8 +3,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
 class RightColumnWidget(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, editor):
+        super().__init__()
+        self.editor = editor
         self.layout = QVBoxLayout()
         self.layout.setSpacing(2)
         self.layout.setContentsMargins(5, 5, 5, 5)
@@ -20,7 +21,7 @@ class RightColumnWidget(QWidget):
         self.right_buttons = [
             QPushButton('Undo'),
             QPushButton('Redo'),
-            QPushButton('Eraser'),
+            QPushButton('Erase'),
             QPushButton('New floor'),
             QPushButton('Go up'),
             QPushButton('Go down'),
@@ -30,3 +31,9 @@ class RightColumnWidget(QWidget):
             self.layout.addWidget(button)
 
         self.setLayout(self.layout)
+        self.right_buttons[2].clicked.connect(self.toggle_eraser_mode)
+
+    # TODO vezi ce vrea chatu ca i prajit
+    def toggle_eraser_mode(self):
+        self.editor.eraser_mode = not self.editor.eraser_mode
+        self.right_buttons[2].setText('Draw' if self.editor.eraser_mode else 'Erase')

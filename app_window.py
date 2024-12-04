@@ -1,3 +1,5 @@
+import sys
+
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QScreen, QAction, QFont
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QToolBar, QStatusBar, \
@@ -48,7 +50,7 @@ class FloorCreatorWindow(QMainWindow):
         central_widget.setLayout(central_layout)
 
         # Left column
-        self.left_column = LeftColumnWidget()
+        self.left_column = LeftColumnWidget()   # TODO fa ca mai jos cu self ca argument
         self.left_column.left_dropdown.currentIndexChanged.connect(self.toggle_left_buttons)
         self.left_column.left_buttons_structure[0].clicked.connect(self.button_wall_clicked)
         self.left_column.left_buttons_structure[1].clicked.connect(self.button_door_clicked)
@@ -60,10 +62,9 @@ class FloorCreatorWindow(QMainWindow):
         central_layout.addWidget(self.editor)
 
         # Right column
-        self.right_column = RightColumnWidget()
+        self.right_column = RightColumnWidget(self.editor)
         self.right_column.right_buttons[0].clicked.connect(self.editor.object_stack.undo)
         self.right_column.right_buttons[1].clicked.connect(self.editor.object_stack.redo)
-        self.right_column.right_buttons[2].clicked.connect(self.button_furniture_clicked)
         central_layout.addWidget(self.right_column)
 
         # Bottom statusbar
@@ -149,3 +150,10 @@ class FloorCreatorWindow(QMainWindow):
     def button_bed_clicked(self):
         self.editor.current_object_size = (2, 3)
         print('Bed button clicked')
+
+
+
+
+app = QApplication(sys.argv)
+window = FloorCreatorWindow(app)
+sys.exit(app.exec())

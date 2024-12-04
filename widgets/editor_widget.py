@@ -1,7 +1,7 @@
 from PySide6.QtGui import QColor, QBrush, QPainter, QUndoStack
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsRectItem
 
-from objects.placeable_object_command import PlaceableObjectCommand
+from objects.object_command import ObjectCommand
 from objects.placeable_object import PlaceableObject
 
 
@@ -13,10 +13,11 @@ class EditorWidget(QGraphicsView):
         self.grid_size = 30
         self.grid_width = 54
         self.grid_height = 34
-        self.setRenderHint(QPainter.RenderHint.Antialiasing)    # Grid lines look bad without this when zoomed out
+        self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.draw_grid()
-        self.current_object_size = (2, 3)  # TODO schimba asta cu marimea coresp. obiectului selectat
+        self.current_object_size = (2, 3)
         self.object_stack = QUndoStack(self)
+        self.eraser_mode = False
 
     def draw_grid(self):
         for x in range(self.grid_width):
@@ -26,13 +27,17 @@ class EditorWidget(QGraphicsView):
 
     def mousePressEvent(self, event):
         pos = self.mapToScene(event.pos())
-        x = int(pos.x() // self.grid_size) * self.grid_size
-        y = int(pos.y() // self.grid_size) * self.grid_size
-        width = self.current_object_size[0] * self.grid_size
-        height = self.current_object_size[1] * self.grid_size
-        placeable_object = PlaceableObject(x, y, width, height)
-        object_command = PlaceableObjectCommand(self.scene, placeable_object)
-        self.object_stack.push(object_command)
+        if self.eraser_mode:
+            item = self.scene.itemAt(pos, self.transform())
+            if isinstance(item, PlaceableObject):
+                self.object_stack.push(ObjectCommand(self.scene, item, remove=True))
+        else:
+            x = int(pos.x() // self.grid_size) * self.grid_size
+            y = int(pos.y() // self.grid_size) * self.grid_size
+            width = self.current_object_size[0] * self.grid_size
+            height = self.current_object_size[1] * self.grid_size
+            placeable_object = PlaceableObject(x, y, width, height)
+            self.object_stack.push(ObjectCommand(self.scene, placeable_object))
 
 class GridItem(QGraphicsRectItem):
     def __init__(self, x, y, size):
